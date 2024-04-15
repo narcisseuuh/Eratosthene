@@ -38,12 +38,47 @@ end_pivot:
 
 
 
+modulo:
+; should return rax := rdi % rsi
+    mov rax, rdi
+    jmp modulo_loop
+modulo_loop:
+    sub rax, rsi
+    cmp rax, rsi
+    jle modulo_loop
+    ret
+
+
 sorting:
 ; Shoud do : deleting each element divisible by current pivot
     pop rcx  ; saving eip
-
-    
-
+    mov r14, rdi ; saving our pivot in r14
+    mov rbx, rdi
+    sub rbx, 2 ; rbx := rdi - 2, beginning of our loop (we will sort from here up to the end)
+    jmp sorting_loop
+sorting_loop:
+    mov rdi, rsp
+    add rdi, rbx
+    mov rdi, [rdi] ; rdi := [rsp + rdi - 2] == numbers[rdi - 2]
+    mov rsi, r14 ; rsi := pivot
+    call modulo ; rax := numbers[rdi - 2] % pivot
+    cmp rax, 0 ; checking value of modulo
+    je delete ; in case modulo == 0 : (divisor) we delete the element by replacing it with a 0
+    mov r13, r15
+    sub r13, 2 ; r13 := n - 2 >= rbx - 2 (cause rbx is our cursor in the buffer, which has length n - 2)
+    cmp rbx, r13 ; comparing our current cursor to the "last cursor possible"
+    je end_sorting ; in case we get to the end of the buffer
+    add rbx, 1
+    jmp sorting_loop
+delete:
+    mov rdi, 0
+    mov r13, r15
+    sub r13, 2
+    cmp rbx, r13
+    je end_sorting
+    add rbx, 1
+    jmp sorting_loop
+end_sorting:
     push rcx ; putting it back
     ret      ; returning
 
@@ -90,7 +125,7 @@ routine:
     jmp main_loop
     ; at this point, on the stack we have the array numbers[n] = {2 (@ rsp), ...., n (@ rsp - n + 2)}
 main_loop:
-    mov rdi, rax ; placing pivot address in argument
+    mov rdi, rax ; placing pivot in argument
     call sorting ; deleting each element divisible by current pivot
     add rdi, 1 ; preparing for next step 
     call find_pivot ; returning in rax new pivot
