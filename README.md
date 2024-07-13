@@ -1,6 +1,7 @@
 # Purpose
 
 Implementing the sieve of Eratosthenes in x64 assembly for fun ^^ (MaelHos encouraged me to do it some years ago, and I feel like now I am ready).
+WIP, I don't know if I will ever end up debugging it...
 
 # Usage
 
